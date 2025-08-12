@@ -23,56 +23,73 @@ objs_by_time = lapply(objs, function(x) {
 # DimPlot(objs$s19, reduction = "umap", label = TRUE, pt.size = 0.5, group.by = 'time_point') 
 # DimPlot(objs$s3299, reduction = "umap", label = TRUE, pt.size = 0.5, group.by = "time_point") 
 
+# ppp = c(
+#  'ALDOA',	
+#  'ALDOB',	
+#  'ALDOC',	
+#  'DERA',	
+#  'FBP1',	
+#  # 'FBP2',	
+#  'G6PD',	
+#  'GPI',	
+#  'H6PD',	
+#  'PFKL',	
+#  'PFKM',	
+#  'PFKP',	
+#  'PGD',	
+#  'PGLS',	
+#  'PGM1',	
+#  'PGM2',	
+#  'PRPS1',	
+#  # 'PRPS1L1',	
+#  'PRPS2',	
+#  'RBKS',	
+#  'RPE',	
+#  # 'RPEL1',	
+#  'RPIA',	
+#  'TALDO1',	
+#  'TKT',	
+#  'TKTL1',	
+#  'TKTL2'
+# )
+
 ppp = c(
- 'ALDOA',	
- 'ALDOB',	
- 'ALDOC',	
- 'DERA',	
- 'FBP1',	
- # 'FBP2',	
- 'G6PD',	
- 'GPI',	
- 'H6PD',	
- 'PFKL',	
- 'PFKM',	
- 'PFKP',	
- 'PGD',	
- 'PGLS',	
- 'PGM1',	
- 'PGM2',	
- 'PRPS1',	
- # 'PRPS1L1',	
- 'PRPS2',	
- 'RBKS',	
- 'RPE',	
- # 'RPEL1',	
- 'RPIA',	
- 'TALDO1',	
- 'TKT',	
- 'TKTL1',	
- 'TKTL2'
+  'G6PD', 
+  'PGLS', 
+  'PGD', 
+  'RPE', 
+  'RPIA', 
+  'TKT', 
+  'TALDO1'
 )
 
 DotPlot(object = objs_by_time$s19$T3, features = c(ppp, 'CXCR4', 'CD27', 'CD5'), cols = 'RdBu',
-        idents = c('CXCR4hiCD27lo', 'CXCR4loCD27hi')
-) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), 
-        legend.position = 'bottom') +
-  ggtitle('Donor 19-T3')
-ggsave('Hemasphere_data/ppp_different_populations_s19_t3.png', width = 10, height = 5)
-ggsave('Hemasphere_data/ppp_different_populations_s19_t3.pdf', width = 10, height = 5)
+        idents = c('CXCR4hiCD27lo', 'CXCR4loCD27hi'), dot.scale = 19) +
+  theme(axis.text.x = element_text(angle = 35, vjust = 1, hjust = 1, size = 16), 
+        legend.position = 'right', legend.direction = 'vertical', 
+        axis.line = element_line(linewidth = 0.3), 
+        axis.ticks = element_line(linewidth = 0.3)) +
+  xlab('') + 
+  ylab('') 
+  # guides(color = guide_legend(nrow = 1, byrow = FALSE),
+  #        size = guide_legend(nrow = 1, byrow = TRUE)) + 
+  # ggtitle('Donor 19-T3')
+ggsave('Hemasphere_data/ppp_different_populations_s19_t3.png', width = 13, height = 5)
+ggsave('Hemasphere_data/ppp_different_populations_s19_t3.pdf', width = 9, height = 4)
 
 DotPlot(object = objs_by_time$s3299$T1, features = c(ppp, 'CXCR4', 'CD27', 'CD5'), cols = 'RdBu',
-        idents = c('CXCR4hiCD27lo', 'CXCR4loCD27hi')
-) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), 
-        legend.position = 'bottom') +
-  ggtitle('Donor 3299-T1')
+        idents = c('CXCR4hiCD27lo', 'CXCR4loCD27hi'), dot.scale = 19) +
+  theme(axis.text.x = element_text(angle = 35, vjust = 1, hjust = 1, size = 16), 
+        legend.position = 'right', legend.direction = 'vertical', 
+        axis.line = element_line(linewidth = 0.3), 
+        axis.ticks = element_line(linewidth = 0.3)) +
+  xlab('') + 
+  ylab('') 
 ggsave('Hemasphere_data/ppp_different_populations_s3299_t1.png', width = 10, height = 5)
-ggsave('Hemasphere_data/ppp_different_populations_s3299_t1.pdf', width = 10, height = 5)
+ggsave('Hemasphere_data/ppp_different_populations_s3299_t1.pdf', width = 9, height = 4)
 
 
-cells_to_vis = x@meta.data %>% 
+cells_to_vis = objs_by_time$s19$T3@meta.data %>% 
   dplyr::filter(annotation_final %in% c('CXCR4hiCD27lo', 'CXCR4loCD27hi')) %>% 
   tibble::rownames_to_column('id') %>% 
   group_by(annotation_final) %>% 
@@ -83,8 +100,27 @@ names(cells_to_vis) = lapply(cells_to_vis, function(x) {
 }) %>% unlist
 cells_to_vis = lapply(cells_to_vis, function(x) {x$id})
 
-DimPlot(x, cells.highlight = cells_to_vis, cols.highlight = c('CXCR4hiCD27lo' = '#E5989B', 'CXCR4loCD27hi' = '#574964'))
+pdf('Hemasphere_data/s19_t3_umap.pdf')
+DimPlot(objs_by_time$s19$T3, cells.highlight = cells_to_vis, cols.highlight = c('CXCR4hiCD27lo' = '#16325B', 'CXCR4loCD27hi' = '#0F828C')) + 
+  theme(legend.position = 'bottom')
+dev.off()
 
+# visualize umaps 
+cells_to_vis = objs_by_time$s3299$T1@meta.data %>% 
+  dplyr::filter(annotation_final %in% c('CXCR4hiCD27lo', 'CXCR4loCD27hi')) %>% 
+  tibble::rownames_to_column('id') %>% 
+  group_by(annotation_final) %>% 
+  group_split() 
+names(cells_to_vis) = lapply(cells_to_vis, function(x) {
+  x %>% 
+    pull(annotation_final) %>% unique
+}) %>% unlist
+cells_to_vis = lapply(cells_to_vis, function(x) {x$id})
+
+pdf('Hemasphere_data/s3299_t1_umap.pdf')
+DimPlot(objs_by_time$s3299$T1, cells.highlight = cells_to_vis, cols.highlight = c('CXCR4hiCD27lo' = '#16325B', 'CXCR4loCD27hi' = '#0F828C')) + 
+  theme(legend.position = 'bottom')
+dev.off()
 
 # perform differential expression analysis
 run_dge = function(x, idents, name_ident) {
@@ -102,21 +138,26 @@ data_dge = list(
   's3299' = objs_by_time$s3299[c('T1', 'T2')]
 )
 
-dge = lapply(data_dge, function(x){
+dge_v2 = lapply(data_dge, function(x){
   lapply(x, function(s) {
     run_dge(s, idents = rev(c('CXCR4hiCD27lo', 'CXCR4loCD27hi')), name_ident = 'annotation_final')
   })
 })
-saveRDS(dge, 'Hemasphere_data/dge_CXCR4hiCD27lo_vs_CXCR4loCD27hi_s19_s3299.rds')
+saveRDS(dge_v2, 'Hemasphere_data/dge_CXCR4hiCD27lo_vs_CXCR4loCD27hi_s19_s3299.rds')
 
-res_dge_ppp = lapply(dge %>% names, function(x) {
-  lapply(dge[[x]] %>% names, function(s) {
-    dge[[x]][[s]] %>% 
+res_dge_ppp = lapply(dge_v2 %>% names, function(x) {
+  lapply(dge_v2[[x]] %>% names, function(s) {
+    dge_v2[[x]][[s]] %>% 
       tibble::rownames_to_column('gene') %>% 
       mutate(sample = paste(x, s, sep = '_')) %>% 
-      filter(gene %in% c(ppp, 'CXCR4', 'CD27'))
+      filter(gene %in% c(ppp, 'CXCR4', 'CD27', 'CD5'))
   }) %>% bind_rows()
-}) %>% bind_rows()
+}) %>% bind_rows() 
+
+nadeu_dge = res_dge_ppp %>% 
+  dplyr::filter(sample %in% c('s19_T3', 's3299_T1'))
+
+write.table(nadeu_dge, 'Hemasphere_data/ppp_dge_nadeu.csv', sep = ',', quote = F, row.names = F, col.names = T)
 
 cols = setNames(
   c(kelly.colors(22), 'indianred'), nm = res_dge_ppp$gene %>% unique
