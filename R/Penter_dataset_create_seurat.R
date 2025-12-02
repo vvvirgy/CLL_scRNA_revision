@@ -35,6 +35,41 @@ min_n_genes <- 250
 max_pct_mt <- 22.5
 min_cells <- 3
 
+# plots QC
+
+lib_size_hist <- xs$CLL2_1@meta.data %>%
+  plot_histogram_qc(x = "nCount_RNA", x_lab = "Library Size (log10(total UMI))") +
+  geom_vline(xintercept = min_lib_size, linetype = "dashed", color = "red")
+lib_size_hist1 <- lib_size_hist +
+  scale_x_log10()
+lib_size_hist2 <- lib_size_hist +
+  scale_x_continuous(limits = c(0, 4000)) +
+  xlab("Library Size (total UMI)") +
+  theme_pubr()
+lib_size_hist1 + lib_size_hist2
+
+ggsave(plot = lib_size_hist2, 'Hemasphere_data/penter_ccl2_1_library_size.png', width = 5, height = 3)
+
+n_genes_hist1 <- xs$CLL2_1@meta.data %>%
+  plot_histogram_qc(x = "nFeature_RNA", x_lab = "Number of Detected Genes") +
+  geom_vline(xintercept = min_n_genes, linetype = "dashed", color = "red")
+n_genes_hist2 <- n_genes_hist1 +
+  scale_x_continuous(limits = c(0, 2000)) 
+n_genes_hist1 + n_genes_hist2
+
+ggsave('Hemasphere_data/penter_cll2_1_n_detected_genes.png', n_genes_hist1, width = 5, height = 3)
+
+# mitochondrial expression 
+pct_mt_hist <- xs$CLL2_1@meta.data %>%
+  plot_histogram_qc(x = "percent.mt", x_lab = "% Mitochondrial Expression") +
+  geom_vline(xintercept = max_pct_mt, linetype = "dashed", color = "red") +
+  scale_x_continuous(limits = c(0, 100))
+
+ggsave(plot = pct_mt_hist, 'Hemasphere_data/cll2_1_mit_expression.png', width = 5, height = 3)
+
+lib_size_hist2 + n_genes_hist1 + pct_mt_hist
+ggsave('Hemasphere_data/cll2_1_qc.png', width = 12, height = 4)
+
 seurat_list = lapply(xs %>% names, function(x) {
   
   print(x)
@@ -50,12 +85,26 @@ seurat_list = lapply(xs %>% names, function(x) {
   
   x <- subset(x, cells = colnames(x)[!is_low_quality])
   
+  n_cells <- Matrix::rowSums(x[["RNA"]]$counts > 0)
   kept_genes <- rownames(x)[n_cells > min_cells]
   x = subset(x, features = kept_genes)
   
   return(x)
 })
 names(seurat_list) = names(xs)
+
+n_cells <- Matrix::rowSums(xs$CLL2_1[["RNA"]]$counts > 0)
+gene_qc <- n_cells %>% 
+  as.data.frame() %>% 
+  ggplot(aes(n_cells)) + 
+  geom_histogram(bins = 100, alpha = 0.75) +
+  scale_x_log10("Number of cells") +
+  theme_bw() 
+gene_qc +
+  geom_vline(xintercept = min_cells, linetype = "dashed", color = "red")
+ggsave('Hemasphere_data/cll2_1_ncells.png', width = 5, height = 3)
+
+
 saveRDS(seurat_list, 'Hemasphere_data/penter_seurat_filtered_qc.rds')
 ################################################################################################
 
